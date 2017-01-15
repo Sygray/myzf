@@ -1,13 +1,5 @@
-#include <string>
-#include <iostream>
-#include <curl/curl.h>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/optional.hpp>
-#include <openssl/hmac.h> 
-#include <openssl/sha.h>
-#include <ctime>
+#include "MyZf.h"
+#include "ZfUtil.h"
 
 using namespace std;
 using namespace boost::property_tree;
@@ -35,12 +27,7 @@ int MyZf()
 	}
 	
 	//Get timestamp for nonce
-	time_t current;
-	time(&current);
-	struct tm* current_tm = localtime(&current);
-	char charTime[256];
-	strftime(charTime, 255, "%Y%m%d.%H%M%S", current_tm);
-	string strTime = charTime;
+	string strTime = ZfUtil::now();
 	cout << "Nonce: " << strTime << endl;
 
 	//Prepare request
@@ -48,22 +35,7 @@ int MyZf()
 
     	// The data that we're going to hash using HMAC
 	string strParam = "nonce=" + strTime + "&method=get_info2";
-    	char charParam[256];
-	strncpy(charParam, strParam.c_str(), 255);
-
-	// The key to hash
-	const char* key = APISecret.c_str();
-
-    	// Using sha1 hash engine here.
-	unsigned char* digest;
-    	digest = HMAC(EVP_sha512(), key, strlen(key), (unsigned char*)charParam, strlen(charParam), NULL, NULL);    
-    	char mdString[SHA512_DIGEST_LENGTH*2+1];
-    	for(int i = 0; i < SHA512_DIGEST_LENGTH; i++)
-	{
-         	sprintf(&mdString[i*2], "%02x", (unsigned int)digest[i]);
- 	}
-	//printf("HMAC digest: %s\n", mdString);
-	string strMd = mdString;
+    	string strMd = ZfUtil::HMAC_SHA512(APISecret, strParam);
 	string strSign = "Sign: "+ strMd;
 
 	//Process curl
@@ -83,7 +55,7 @@ int MyZf()
 	headers = curl_slist_append(headers, strSign.c_str());
         
 	curl_easy_setopt(curl, CURLOPT_POST, 1);
-	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, charParam);
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, strParam.c_str());
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_URL, URLTradeAPI.c_str()); // /1/ticker/btc_jpy");
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);

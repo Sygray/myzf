@@ -1,9 +1,7 @@
 #include <iostream>
-
-int MyZf();
+#include "MyZf.h"
 
 int main (){
 	int z = MyZf();
-	std::cout << "Main" << std::endl;
 	return 0;
 }
