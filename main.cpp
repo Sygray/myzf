@@ -1,8 +1,5 @@
-#include <iostream>
-#include <signal.h>
+#include "main.h" 
 #include "MyZf.h"
-
-void signal_handle(int);
 
 int main (){
 	signal(SIGINT, signal_handle);
