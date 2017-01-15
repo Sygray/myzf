@@ -30,13 +30,9 @@ int MyZf()
 	string strTime = ZfUtil::now();
 	cout << "Nonce: " << strTime << endl;
 
-	//Prepare request
-	string strKey = "Key: " + APIKey;
-
     	// The data that we're going to hash using HMAC
 	string strParam = "nonce=" + strTime + "&method=get_info2";
     	string strMd = ZfUtil::HMAC_SHA512(APISecret, strParam);
-	string strSign = "Sign: "+ strMd;
 
 	//Process curl
 	CURL *curl;
@@ -51,6 +47,8 @@ int MyZf()
         }
 
 	struct curl_slist *headers = NULL;
+	string strKey = "Key: " + APIKey;
+	string strSign = "Sign: "+ strMd;
 	headers = curl_slist_append(headers, strKey.c_str());
 	headers = curl_slist_append(headers, strSign.c_str());
         

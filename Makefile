@@ -7,8 +7,6 @@ OBJDIR = ./
 SRCS := $(shell find $(SRCDIR)*.cpp)
 OBJS := $(SRCS:.cpp=.o) 
 
-all: clean $(TARGET)
-
 $(TARGET): $(OBJS)
 	$(CXX) -o $(TARGET) $(OBJS) $(LIBS)
 
